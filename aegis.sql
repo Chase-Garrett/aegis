@@ -1,5 +1,3 @@
-DROP DATABASE IF EXISTS aegis_db;
-CREATE DATABASE aegis_db;
 
 CREATE TYPE "dept_name" AS ENUM (
   'ER',
@@ -30,8 +28,8 @@ CREATE TABLE "patient" (
   "Gender" char,
   "Birthdate" date,
   "email" varchar,
-  "phone_no" integer,
-  "emergency_contact_no" integer
+  "phone_no" bigint,
+  "emergency_contact_no" bigint
 );
 
 CREATE TABLE "patient_visit" (
@@ -39,8 +37,8 @@ CREATE TABLE "patient_visit" (
   "symptoms" varchar,
   "diagnosis" varchar,
   "treatmeant_plan_id" integer,
-  "admittance" datetime,
-  "discharge" datetime,
+  "admittance" timestamp,
+  "discharge" timestamp,
   "room_no" integer,
   "patient_id" integer,
   "staff_id" integer,
@@ -49,11 +47,11 @@ CREATE TABLE "patient_visit" (
 );
 
 CREATE TABLE "treatment_plan" (
-  "treatmean_plan_id" integer UNIQUE PRIMARY KEY,
+  "treatmeant_plan_id" integer UNIQUE PRIMARY KEY,
   "patient_visit_prescription_id" integer,
   "patient_visit_procedure_id" integer,
   "patient_visit_test_id" integer,
-  "dept_id" integer
+  "treatment_plan_dept_id" integer
 );
 
 CREATE TABLE "hospital_staff" (
@@ -102,7 +100,7 @@ CREATE TABLE "tests" (
 );
 
 CREATE TABLE "patient_visit_test" (
-  "patient_visit_tests_id" integer UNIQUE PRIMARY KEY,
+  "patient_visit_test_id" integer UNIQUE PRIMARY KEY,
   "pv_id" integer,
   "test_id" integer
 );
@@ -131,56 +129,57 @@ CREATE TABLE "prescription" (
 
 CREATE TABLE "treatment_plan_department" (
   "treatment_plan_dept_id" integer UNIQUE PRIMARY KEY,
-  "department_dept_id" integer,
+  "dept_id" integer
 );
 
 CREATE TABLE "patient_visit_hospital_staff" (
   "patient_visit_staff_id" integer UNIQUE PRIMARY KEY,
-  "hospital_staff_staff_id" integer,
+  "hospital_staff_id" integer,
+  "pv_id" integer
 );
 
-ALTER TABLE "room" ADD FOREIGN KEY ("room_no") REFERENCES "patient_visit" ("room_no");
+ALTER TABLE "patient_visit" ADD FOREIGN KEY ("room_no") REFERENCES "room" ("room_no");
 
 ALTER TABLE "patient_visit" ADD FOREIGN KEY ("patient_id") REFERENCES "patient" ("patient_id");
 
-ALTER TABLE "patient_visit_hospital_staff" ADD FOREIGN KEY ("patient_visit_staff_id") REFERENCES "patient_visit" ("staff_id");
+ALTER TABLE "patient_visit_hospital_staff" ADD FOREIGN KEY ("pv_id") REFERENCES "patient_visit" ("pv_id");
 
-ALTER TABLE "patient_visit_hospital_staff" ADD FOREIGN KEY ("hospital_staff_staff_id") REFERENCES "hospital_staff" ("staff_id");
+ALTER TABLE "patient_visit_hospital_staff" ADD FOREIGN KEY ("hospital_staff_id") REFERENCES "hospital_staff" ("staff_id");
 
 ALTER TABLE "hospital_staff" ADD FOREIGN KEY ("dept_id") REFERENCES "department" ("dept_id");
 
-ALTER TABLE "department" ADD FOREIGN KEY ("dept_id") REFERENCES "room" ("dept_id");
+ALTER TABLE "room" ADD FOREIGN KEY ("dept_id") REFERENCES "department" ("dept_id");
 
-ALTER TABLE "billing" ADD FOREIGN KEY ("bill_id") REFERENCES "patient_visit" ("bill_id");
+ALTER TABLE "patient_visit" ADD FOREIGN KEY ("bill_id") REFERENCES "billing" ("bill_id");
 
-ALTER TABLE "insurance" ADD FOREIGN KEY ("insurance_id") REFERENCES "billing" ("insurance_id");
+ALTER TABLE "billing" ADD FOREIGN KEY ("insurance_id") REFERENCES "insurance" ("insurance_id");
 
-ALTER TABLE "insurance" ADD FOREIGN KEY ("insurance_id") REFERENCES "patient_visit" ("insurance_id");
+ALTER TABLE "patient_visit" ADD FOREIGN KEY ("insurance_id") REFERENCES "insurance" ("insurance_id");
 
-ALTER TABLE "department" ADD FOREIGN KEY ("dept_id") REFERENCES "charge" ("dept_id");
+ALTER TABLE "charge" ADD FOREIGN KEY ("dept_id") REFERENCES "department" ("dept_id");
 
-ALTER TABLE "charge" ADD FOREIGN KEY ("charge_id") REFERENCES "billing" ("charge_id");
+ALTER TABLE "billing" ADD FOREIGN KEY ("charge_id") REFERENCES "charge" ("charge_id");
 
-ALTER TABLE "treatment_plan" ADD FOREIGN KEY ("treatmean_plan_id") REFERENCES "patient_visit" ("treatmeant_plan_id");
+ALTER TABLE "patient_visit" ADD FOREIGN KEY ("treatmeant_plan_id") REFERENCES "treatment_plan" ("treatmeant_plan_id");
 
-ALTER TABLE "treatment_plan_department" ADD FOREIGN KEY ("treatment_plan_dept_id") REFERENCES "treatment_plan" ("dept_id");
+ALTER TABLE "treatment_plan" ADD FOREIGN KEY ("treatment_plan_dept_id") REFERENCES "treatment_plan_department" ("treatment_plan_dept_id");
 
-ALTER TABLE "treatment_plan_department" ADD FOREIGN KEY ("department_dept_id") REFERENCES "department" ("dept_id");
+ALTER TABLE "treatment_plan_department" ADD FOREIGN KEY ("dept_id") REFERENCES "department" ("dept_id");
 
 ALTER TABLE "patient_visit_test" ADD FOREIGN KEY ("pv_id") REFERENCES "patient_visit" ("pv_id");
 
 ALTER TABLE "patient_visit_test" ADD FOREIGN KEY ("test_id") REFERENCES "tests" ("test_id");
 
-ALTER TABLE "patient_visit_test" ADD FOREIGN KEY ("patient_visit_tests_id") REFERENCES "treatment_plan" ("patient_visit_test_id");
+ALTER TABLE "treatment_plan" ADD FOREIGN KEY ("patient_visit_test_id") REFERENCES "patient_visit_test" ("patient_visit_test_id");
 
 ALTER TABLE "patient_visit_procedure" ADD FOREIGN KEY ("procedure_id") REFERENCES "procedures" ("procedure_id");
 
 ALTER TABLE "patient_visit_procedure" ADD FOREIGN KEY ("pv_id") REFERENCES "patient_visit" ("pv_id");
 
-ALTER TABLE "patient_visit_procedure" ADD FOREIGN KEY ("patient_visit_procedure_id") REFERENCES "treatment_plan" ("patient_visit_procedure_id");
+ALTER TABLE "treatment_plan" ADD FOREIGN KEY ("patient_visit_procedure_id") REFERENCES "patient_visit_procedure" ("patient_visit_procedure_id");
 
 ALTER TABLE "patient_visit_prescription" ADD FOREIGN KEY ("pv_id") REFERENCES "patient_visit" ("pv_id");
 
 ALTER TABLE "patient_visit_prescription" ADD FOREIGN KEY ("prescription_id") REFERENCES "prescription" ("prescription_id");
 
-ALTER TABLE "patient_visit_prescription" ADD FOREIGN KEY ("patient_visit_prescription_id") REFERENCES "treatment_plan" ("patient_visit_prescription_id");
+ALTER TABLE "treatment_plan" ADD FOREIGN KEY ("patient_visit_prescription_id") REFERENCES "patient_visit_prescription" ("patient_visit_prescription_id");
