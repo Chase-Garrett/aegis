@@ -1,4 +1,3 @@
-
 CREATE TYPE "dept_name" AS ENUM (
   'ER',
   'ICU',
